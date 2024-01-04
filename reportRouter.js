@@ -7,34 +7,34 @@ import userSchema from "./userSchema.js";
 
 
 // // get all reports and pastvisit...............
-router.post("/user",async(req,res)=>{
+// router.post("/user",async(req,res)=>{
 
-  try {
-    const RegNo = req.body.RegNo;
+//   try {
+//     const RegNo = req.body.RegNo;
 
-    // Check if the user exists
-    const userExist = await reportSchema.findOne({ RegNo: RegNo });
+//     // Check if the user exists
+//     const userExist = await reportSchema.findOne({ RegNo: RegNo });
 
-    if (!userExist) {
-      // If the user does not exist, return an error
-      return res.status(404).json({ error: "User not found" });
-    }
+//     if (!userExist) {
+//       // If the user does not exist, return an error
+//       return res.status(404).json({ error: "User not found" });
+//     }
 
-    // If the user exists, retrieve their reports
-    const reports = await reportSchema.find({ RegNo: RegNo });
+//     // If the user exists, retrieve their reports
+//     const reports = await reportSchema.find({ RegNo: RegNo });
 
-    if (reports.length > 0) {
-      // If reports exist, return them as an array
-     res.status(200).json({ reports: reports });
-    } else {
-      // If no reports exist, provide a message indicating so
-      res.status(500).json({ user: userExist, message: "No reports found for the user" });
-    }
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-});
+//     if (reports.length > 0) {
+//       // If reports exist, return them as an array
+//      res.status(200).json({ reports: reports });
+//     } else {
+//       // If no reports exist, provide a message indicating so
+//       res.status(500).json({ user: userExist, message: "No reports found for the user" });
+//     }
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: "Internal Server Error" });
+//   }
+// });
 
 
 
@@ -105,33 +105,33 @@ router.post("/user",async(req,res)=>{
 // user and all user report...........
 
 
-router.post("/joindataall", async (req, res) => {
-  try {
+// router.post("/joindataall", async (req, res) => {
+//   try {
 
-    // Check if the user exists
-    const userExist = await userSchema.find();
+//     // Check if the user exists
+//     const userExist = await userSchema.find();
 
-    if (!userExist) {
-      // If the user does not exist, return an error
-      return res.status(404).json({ error: "User not found" });
-    }
+//     if (!userExist) {
+//       // If the user does not exist, return an error
+//       return res.status(404).json({ error: "User not found" });
+//     }
 
-    // If the user exists, retrieve their reports
-    const reports = await reportSchema.find();
+//     // If the user exists, retrieve their reports
+//     const reports = await reportSchema.find();
     
 
-    if (reports.length > 0) {
-      // If reports exist, return them as an array
-    res.status(200).json({ status:"success",user: userExist, reports: reports });
-    } else {
-      // If no reports exist, provide a message indicating so
-      res.status(404).json({ status:"success",user: userExist, message: "No reports found for the user" });
-    }
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-});
+//     if (reports.length > 0) {
+//       // If reports exist, return them as an array
+//     res.status(200).json({ status:"success",user: userExist, reports: reports });
+//     } else {
+//       // If no reports exist, provide a message indicating so
+//       res.status(404).json({ status:"success",user: userExist,reports: [], message: "No reports found for the user" });
+//     }
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: "Internal Server Error" });
+//   }
+// });
 
 
 
@@ -153,12 +153,174 @@ router.post("/joindata", async (req, res) => {
     const reports = await reportSchema.find({ RegNo: RegNo });
     
 
-    if (reports.length > 0) {
+    if (reports.length >= 0) {
       // If reports exist, return them as an array
-    res.status(200).json({ status:"success",user: userExist, reports: reports });
+    res.status(200).json({ status:"success",user: userExist, reports: reports||[] });
+    console.log(reports) 
+  } 
+  // else {
+  //     // If no reports exist, provide a message indicating so
+  //     // res.status(200).json({ user: userExist,reports: reports||[]  });
+  //   }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+
+// ......todaylist hours.
+
+
+router.post("/todaylist", async (req, res) => {
+  try {
+    const today = new Date()
+    today.setHours(0,0,0,0);
+    console.log(today)
+// Set hours, minutes, seconds, and milliseconds to 0 for today's date
+
+    // Fetch users created today
+    const users = await userSchema.find({ Created_at: { $gte: today } });
+
+    if (users.length === 0) {
+      return res.status(404).json({ status: "success", message: "No users found today" });
+    }
+
+    // Fetch reports created today
+    const reports = await reportSchema.find({ Created_at: { $gte: today } });
+
+    if (reports.length > 0) {
+      // If reports exist, return them along with the users
+      res.status(200).json({ status: "success", users: users, reports: reports });
     } else {
       // If no reports exist, provide a message indicating so
-      res.status(404).json({ status:"success",user: userExist, message: "No reports found for the user" });
+      res.status(404).json({ status: "success", users: users, message: "No reports found for the users today" });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+
+// this week list.........
+
+
+// router.post("/thisweeklist", async (req, res) => {
+//   try {
+//     const today = new Date();
+//     today.setHours(0, 0, 0, 0);
+
+//     // Calculate the start of the current week
+//     const startOfWeek = new Date(today);
+//     startOfWeek.setDate(today.getDate() - today.getDay()); // Move to the first day (Sunday) of the current week
+//     startOfWeek.setHours(0, 0, 0, 0);
+
+//     // Fetch users created this week
+//     const users = await userSchema.find({ Created_at: { $gte: startOfWeek } });
+
+//     if (users.length === 0) {
+//       return res.status(404).json({ status: "success", message: "No users found this week" });
+//     }
+
+//     // Fetch reports created this week
+//     const reports = await reportSchema.find({ Created_at: { $gte: startOfWeek } });
+
+//     if (reports.length > 0) {
+//       // If reports exist, return them along with the users
+//       res.status(200).json({ status: "success", users: users, reports: reports });
+//     } else {
+//       // If no reports exist, provide a message indicating so
+//       res.status(404).json({ status: "success", users: users, message: "No reports found for the users this week" });
+//     }
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: "Internal Server Error" });
+//   }
+// });
+
+
+// this month.........
+
+
+router.post("/thismonthlist", async (req, res) => {
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Calculate the start of the current month
+    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    startOfMonth.setHours(0, 0, 0, 0);
+
+    // Fetch users created this month
+    const users = await userSchema.find({ Created_at: { $gte: startOfMonth } });
+
+    if (users.length === 0) {
+      return res.status(404).json({ status: "success", message: "No users found this month" });
+    }
+
+    // Fetch reports created this month
+    const reports = await reportSchema.find({ Created_at: { $gte: startOfMonth } });
+
+    if (reports.length > 0) {
+      // If reports exist, return them along with the users
+      res.status(200).json({ status: "success", users: users, reports: reports });
+    } else {
+      // If no reports exist, provide a message indicating so
+      res.status(404).json({ status: "success", users: users, message: "No reports found for the users this month" });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+
+
+// get reports between start date and end date ..............
+
+
+router.post("/daterange", async (req, res) => {
+  try {
+    const  start = new Date(req.body.start);
+    const  end  = new Date(req.body.end);
+
+    // Validate start and end dates
+
+    // console.log(start)
+    // console.log(end)
+
+    if (isNaN(start) || isNaN(end)) {
+      return res.status(400).json({ error: "Invalid date format" });
+    }
+
+    // Fetch users created within the specified date range
+    const users = await userSchema.find({
+      Created_at: { $gte: start, $lte: end },
+    });
+    // console.log(users.length)
+
+    if (users.length === 0) {
+      return res.status(404).json({ status: "success", message: "No users found" });
+    }
+
+
+    // Fetch reports created within the specified date range
+    const reports = await reportSchema.find({
+      Created_at: { $gte: start, $lte: end },
+    });
+    console.log(reports)
+
+    if (reports.length > 0) {
+      // If reports exist, return them along with the users
+      res.status(200).json({ status: "success", users: users, reports: reports });
+    } else {
+      // If no reports exist, provide a message indicating so
+      res.status(404).json({
+        status: "success",
+        users: users,
+        message: "No reports found for the users in the specified date range",
+      });
     }
   } catch (error) {
     console.error(error);
@@ -169,21 +331,25 @@ router.post("/joindata", async (req, res) => {
 
 
 
+
+
   // create report............. 
   
   router.post("/reportpost", async (req, res) => {
     try {
-      const user = await new reportSchema({
+      const report = await new reportSchema({
         Diagnosis: req.body.Diagnosis,
         Remarks: req.body.Remarks,
         Prescription: req.body.Prescription,
         RegNo: req.body.RegNo,
         followDate:req.body.followDate,
-        sos:req.body.sos
+        sos:req.body.sos,
+        start:req.body.start,
+        end:req.body.end
          // Link the report to a student using studentId
       });
   
-      const data = await user.save();
+      const data = await report.save();
       console.log(data);
       res.status(200).json({status:"success",data:data});
     } catch (error) {

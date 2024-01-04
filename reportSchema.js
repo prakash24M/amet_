@@ -23,7 +23,7 @@ const reportSchema=mongoose.Schema({
     },
     Created_at: {
         type: Date,
-        default: Date.now
+        default: Date.now,
       },
       followDate: {
         type: Date,
@@ -35,6 +35,18 @@ const reportSchema=mongoose.Schema({
         type:String,
         default:null
       },
+      // start:{
+      //   type: Date,
+      //   default: null,
+      //   get: (val) => val ? val.toISOString().split('T')[0] : null, // get only the date part
+      //   set: (val) => val, // allow setting full date
+      // },
+      // end:{
+      //   type: Date,
+      //   default: null,
+      //   get: (val) => val ? val.toISOString().split('T')[0] : null, // get only the date part
+      //   set: (val) => val, // allow setting full date
+      // }
 })
 const Schema=mongoose.model("report",reportSchema)
 
