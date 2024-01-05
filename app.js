@@ -14,8 +14,10 @@ app.use("/report",reportRouter)
 app.use("/admin",adminRouter)
 app.use(morgan("dev"))
 let PORT="4500"
+const MongoUrl = "mongodb+srv://jayaprakash:prakash24@clusteramet.jyre1fz.mongodb.net/";
 
-mongoose.connect("mongodb://localhost:27017/")
+
+mongoose.connect(MongoUrl)
 .then(() => {
   console.log('Connected to MongoDB');
 })
